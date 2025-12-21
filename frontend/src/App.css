@@ -1,0 +1,147 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.app-header h1 {
+  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+  font-weight: 300;
+}
+
+.header-actions {
+  margin-top: 10px;
+}
+
+.clear-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.clear-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.app-content {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.chat-container {
+  flex-shrink: 0;
+}
+
+.info-panel {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 350px;
+  height: fit-content;
+}
+
+.info-panel h2 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.info-panel h3 {
+  color: #555;
+  margin-top: 25px;
+  margin-bottom: 15px;
+}
+
+.info-panel p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.info-panel ul {
+  color: #666;
+  padding-left: 20px;
+}
+
+.info-panel li {
+  margin-bottom: 8px;
+}
+
+.example-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.example-questions button {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.example-questions button:hover {
+  background: #e9ecef;
+  border-color: #dee2e6;
+}
+
+@media (max-width: 768px) {
+  .app-content {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .info-panel {
+    max-width: 400px;
+    width: 100%;
+  }
+  
+  .app-header h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app {
+    padding: 10px;
+  }
+  
+  .chat-widget {
+    max-width: 100%;
+    height: 500px;
+  }
+}
