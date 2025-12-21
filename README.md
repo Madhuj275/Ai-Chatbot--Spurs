@@ -199,33 +199,6 @@ The application includes comprehensive error handling for:
 - Input validation errors
 - LLM API failures
 
-## Development
-
-### Running Tests
-
-```bash
-# Backend tests
-cd backend
-npm run test
-
-# Frontend tests
-cd frontend
-npm test
-```
-
-### Linting and Type Checking
-
-```bash
-# Backend
-cd backend
-npm run lint
-npm run typecheck
-
-# Frontend
-cd frontend
-npm run lint
-npm run typecheck
-```
 
 ### Building for Production
 
@@ -239,37 +212,5 @@ cd frontend
 npm run build
 ```
 
-## Deployment Considerations
 
-- Set up environment variables securely
-- Configure PostgreSQL and Redis for production
-- Set up SSL/TLS certificates
-- Configure rate limiting
-- Set up monitoring and logging
-- Configure backup strategies for the database
 
-## Project Architecture
-
-ai-support-chat/
-├── backend/
-│   ├── src/
-│   │   ├── controllers/chatController.ts
-│   │   ├── services/
-│   │   │   ├── database.ts (PostgreSQL)
-│   │   │   ├── cache.ts (Redis)
-│   │   │   └── llm.ts (OpenAI)
-│   │   ├── middleware/errorHandler.ts
-│   │   ├── utils/validation.ts
-│   │   └── types/index.ts
-│   ├── package.json
-│   └── tsconfig.json
-├── frontend/
-│   ├── src/
-│   │   ├── components/ChatWidget.tsx
-│   │   ├── services/api.ts
-│   │   ├── types/index.ts
-│   │   └── App.tsx
-│   ├── package.json
-│   └── tsconfig.json
-├── README.md
-└── setup scripts
