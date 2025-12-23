@@ -211,12 +211,13 @@ frontend/
 3. **Speed vs. Accuracy**: Limited conversation history to prevent token explosion
 4. **Features vs. Time**: Focused on core chat functionality, advanced features deferred
 
-## If I Had More Time...Immediate Improvements
+## If I Had More Time...Improvements
 
-1. **Authentication & User Management**: Add user accounts and personalized experiences
-2. **Admin Dashboard**: Web interface for viewing conversations and analytics
-3. **File Upload Support**: Allow users to share images of products/issues
-4. **Multi-language Support**: Internationalization for global users
-5. **WebSocket Real-time Updates**: Replace polling with WebSocket connections
+1. **Global Question Database**: Could answer all Questions 
+2. **Authentication & User Management**: Add user accounts and personalized experiences
+3. **Admin Dashboard**: Web interface for viewing conversations and analytics
+4. **File Upload Support**: Allow users to share images of products/issues
+5. **Multi-language Support**: Internationalization for global users
+6. **WebSocket Real-time Updates**: Replace polling with WebSocket connections
 
 
