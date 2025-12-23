@@ -3,7 +3,6 @@
 A mini AI-powered customer support chat widget built with Node.js, TypeScript, React, PostgreSQL, and Redis.
 
 ## Features
-
 - 🤖 AI-powered chat responses using OpenAI GPT-3.5
 - 💬 Real-time chat interface with typing indicators
 - 💾 Persistent conversation history
@@ -42,7 +41,7 @@ A mini AI-powered customer support chat widget built with Node.js, TypeScript, R
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/Madhuj275/Ai-Chatbot--Spurs
 cd ai-support-chat
 
 # Install backend dependencies
@@ -100,68 +99,6 @@ The application will be available at:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001
 
-## API Endpoints
-
-### POST /chat/message
-Send a message to the AI support agent.
-
-**Request Body:**
-```json
-{
-  "message": "What's your return policy?",
-  "sessionId": "optional-session-id"
-}
-```
-
-**Response:**
-```json
-{
-  "reply": "We offer a 30-day return policy...",
-  "sessionId": "conversation-session-id"
-}
-```
-
-### GET /chat/history/:sessionId
-Get conversation history for a session.
-
-**Response:**
-```json
-{
-  "messages": [
-    {
-      "id": "message-id",
-      "sender": "user",
-      "text": "Hello",
-      "timestamp": "2023-12-21T10:30:00Z"
-    }
-  ]
-}
-```
-
-### GET /health
-Health check endpoint.
-
-**Response:**
-```json
-{
-  "status": "ok",
-  "timestamp": "2023-12-21T10:30:00Z"
-}
-```
-
-## Database Schema
-
-### conversations
-- `id` (UUID, Primary Key)
-- `created_at` (Timestamp)
-- `updated_at` (Timestamp)
-
-### messages
-- `id` (UUID, Primary Key)
-- `conversation_id` (UUID, Foreign Key)
-- `sender` (VARCHAR: 'user' | 'ai')
-- `text` (TEXT)
-- `timestamp` (Timestamp)
 
 ## AI Agent Knowledge Base
 
@@ -188,29 +125,100 @@ The AI agent is trained with information about:
   - 1-year warranty on all products
   - Price match guarantee
 
-## Error Handling
 
-The application includes comprehensive error handling for:
-
-- Invalid API keys
-- Rate limiting
-- Network timeouts
-- Database connection issues
-- Input validation errors
-- LLM API failures
-
-
-### Building for Production
+### Database Setup and Migrations
 
 ```bash
-# Build backend
-cd backend
-npm run build
+# Create PostgreSQL database
+# Option 1: Using psql
+psql -U postgres -c "CREATE DATABASE ai_support_db;"
 
-# Build frontend
+# Option 2: Using createdb command
+createdb ai_support_db
+
+### 4. Running the Application
+
+# Terminal 1: Start Backend
+cd backend
+npm install
+npm run dev
+
+# Terminal 2: Start Frontend
 cd frontend
-npm run build
+npm install
+npm start
+
 ```
 
+## Architecture Overview
+
+### Backend Architecture (Layered Architecture)
+
+```
+backend/
+├── src/
+│   ├── controllers/          # HTTP request handlers
+│   │   └── chatController.ts # Chat endpoint logic
+│   ├── services/            # Business logic layer
+│   │   ├── chatService.ts   # Chat orchestration
+│   │   ├── llmService.ts    # LLM provider abstraction
+│   │   └── cacheService.ts  # Redis caching logic
+│   ├── repositories/        # Data access layer
+│   │   ├── conversationRepository.ts
+│   │   └── messageRepository.ts
+│   ├── models/            # Data models and types
+│   ├── middleware/        # Express middleware
+│   ├── config/           # Configuration management
+│   └── utils/            # Utility functions
+└── tests/                # Unit and integration tests
+```
+
+### Key Design Decisions
+
+1. **Layered Architecture**: Separation of concerns with distinct layers for HTTP handling, business logic, and data access
+2. **Repository Pattern**: Abstracts database operations for easier testing and future database migrations
+3. **Service Layer**: Contains all business logic, keeping controllers thin and focused on HTTP concerns
+4. **LLM Provider Abstraction**: `llmService.ts` provides a unified interface for multiple AI providers (OpenAI, Anthropic)
+5. **Caching Strategy**: Redis caching for frequently accessed conversation history
+6. **Validation Layer**: Zod schemas for runtime type validation and API contract enforcement
+
+### Frontend Architecture
+
+```
+frontend/
+├── src/
+│   ├── components/        # React components
+│   │   ├── ChatWidget.tsx    # Main chat interface
+│   │   ├── MessageList.tsx   # Message display
+│   │   └── InputForm.tsx     # User input handling
+│   ├── services/         # API communication
+│   │   └── api.ts        # Backend API client
+│   ├── hooks/           # Custom React hooks
+│   ├── utils/           # Frontend utilities
+│   └── types/           # TypeScript type definitions
+```
+
+### Provider Used
+- **Primary**: OpenAI GPT-3.5-turbo
+- **Secondary**: Anthropic Claude (ready for integration)
+- **Architecture**: Provider-agnostic service layer for easy switching
+
+```
+
+### Trade-offs and Design Decisions
+
+1. **Simple vs. Scalable**: Chose simple layered architecture over microservices for faster development
+2. **Cost vs. Quality**: Using GPT-3.5 instead of GPT-4 for cost efficiency
+3. **Speed vs. Accuracy**: Limited conversation history to prevent token explosion
+4. **Features vs. Time**: Focused on core chat functionality, advanced features deferred
+
+## If I Had More Time...
+
+### Immediate Improvements
+1. **Authentication & User Management**: Add user accounts and personalized experiences
+2. **Admin Dashboard**: Web interface for viewing conversations and analytics
+3. **File Upload Support**: Allow users to share images of products/issues
+4. **Multi-language Support**: Internationalization for global users
+5. **WebSocket Real-time Updates**: Replace polling with WebSocket connections
 
 
