@@ -211,9 +211,8 @@ frontend/
 3. **Speed vs. Accuracy**: Limited conversation history to prevent token explosion
 4. **Features vs. Time**: Focused on core chat functionality, advanced features deferred
 
-## If I Had More Time...
+## If I Had More Time...Immediate Improvements
 
-### Immediate Improvements
 1. **Authentication & User Management**: Add user accounts and personalized experiences
 2. **Admin Dashboard**: Web interface for viewing conversations and analytics
 3. **File Upload Support**: Allow users to share images of products/issues
