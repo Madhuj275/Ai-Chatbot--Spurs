@@ -203,7 +203,6 @@ frontend/
 - **Secondary**: Anthropic Claude (ready for integration)
 - **Architecture**: Provider-agnostic service layer for easy switching
 
-```
 
 ### Trade-offs and Design Decisions
 
