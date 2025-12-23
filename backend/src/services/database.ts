@@ -1,5 +1,9 @@
 import { Pool } from 'pg';
 import { Conversation, ChatMessage } from '../types';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 let pool: Pool | null = null;
 
@@ -7,7 +11,10 @@ let pool: Pool | null = null;
 function initializeDatabasePool() {
   const databaseUrl = process.env.DATABASE_URL;
   
-  if (!databaseUrl || databaseUrl === 'postgresql://username:password@localhost:5432/ai_support_db') {
+  console.log('DATABASE_URL:', databaseUrl ? 'Present' : 'Missing');
+  console.log('DATABASE_URL value:', databaseUrl);
+  
+  if (!databaseUrl || databaseUrl.includes('username:password@localhost')) {
     console.warn('⚠️  Database not configured. Using in-memory storage (data will not persist).');
     return null;
   }
@@ -17,6 +24,7 @@ function initializeDatabasePool() {
       connectionString: databaseUrl,
       ssl: databaseUrl.includes('localhost') ? false : { rejectUnauthorized: false },
     });
+    console.log('✅ Database pool initialized successfully');
     return pool;
   } catch (error) {
     console.error('❌ Failed to initialize database pool:', error);
@@ -26,6 +34,45 @@ function initializeDatabasePool() {
 
 // Initialize pool on module load
 initializeDatabasePool();
+
+// Create tables if they don't exist
+async function createTables() {
+  if (!pool) return;
+
+  try {
+    // Create conversations table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS conversations (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    // Create messages table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS messages (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
+        sender VARCHAR(10) NOT NULL CHECK (sender IN ('user', 'ai')),
+        text TEXT NOT NULL,
+        timestamp TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    // Create index for faster queries
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_messages_conversation_id ON messages(conversation_id)
+    `);
+
+    console.log('✅ Database tables created successfully');
+  } catch (error) {
+    console.error('❌ Failed to create database tables:', error);
+  }
+}
+
+// Create tables on initialization
+createTables();
 
 // In-memory storage fallback when database is not available
 const memoryStorage = {
@@ -55,6 +102,7 @@ export class DatabaseService {
       `;
       
       const result = await pool.query(query);
+      
       return {
         id: result.rows[0].id,
         createdAt: result.rows[0].created_at,
@@ -62,19 +110,19 @@ export class DatabaseService {
       };
     } catch (error) {
       console.error('Database createConversation error:', error);
-      throw new Error('Failed to create conversation');
+      throw error;
     }
   }
 
-  async getConversation(conversationId: string): Promise<Conversation | null> {
+  async getConversation(id: string): Promise<Conversation | null> {
     if (!pool) {
       // In-memory fallback
-      return memoryStorage.conversations.get(conversationId) || null;
+      return memoryStorage.conversations.get(id) || null;
     }
 
     try {
-      const query = 'SELECT * FROM conversations WHERE id = $1';
-      const result = await pool.query(query, [conversationId]);
+      const query = 'SELECT id, created_at, updated_at FROM conversations WHERE id = $1';
+      const result = await pool.query(query, [id]);
       
       if (result.rows.length === 0) {
         return null;
@@ -94,11 +142,6 @@ export class DatabaseService {
   async saveMessage(message: Omit<ChatMessage, 'id' | 'timestamp'>): Promise<ChatMessage> {
     if (!pool) {
       // In-memory fallback
-      const conversation = memoryStorage.conversations.get(message.conversationId);
-      if (!conversation) {
-        throw new Error('Conversation not found');
-      }
-
       const newMessage: ChatMessage = {
         id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         conversationId: message.conversationId,
@@ -106,7 +149,7 @@ export class DatabaseService {
         text: message.text,
         timestamp: new Date(),
       };
-
+      
       const messages = memoryStorage.messages.get(message.conversationId) || [];
       messages.push(newMessage);
       memoryStorage.messages.set(message.conversationId, messages);
@@ -116,8 +159,8 @@ export class DatabaseService {
 
     try {
       const query = `
-        INSERT INTO messages (conversation_id, sender, text, timestamp)
-        VALUES ($1, $2, $3, NOW())
+        INSERT INTO messages (id, conversation_id, sender, text, timestamp)
+        VALUES (gen_random_uuid(), $1, $2, $3, NOW())
         RETURNING id, conversation_id, sender, text, timestamp
       `;
       
@@ -136,7 +179,7 @@ export class DatabaseService {
       };
     } catch (error) {
       console.error('Database saveMessage error:', error);
-      throw new Error('Failed to save message');
+      throw error;
     }
   }
 
@@ -166,47 +209,6 @@ export class DatabaseService {
     } catch (error) {
       console.error('Database getConversationHistory error:', error);
       return [];
-    }
-  }
-
-  async initializeDatabase(): Promise<void> {
-    if (!pool) {
-      console.log('📝 Using in-memory storage (no database configured)');
-      return;
-    }
-
-    try {
-      const createConversationsTable = `
-        CREATE TABLE IF NOT EXISTS conversations (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          created_at TIMESTAMP DEFAULT NOW(),
-          updated_at TIMESTAMP DEFAULT NOW()
-        )
-      `;
-
-      const createMessagesTable = `
-        CREATE TABLE IF NOT EXISTS messages (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
-          sender VARCHAR(10) CHECK (sender IN ('user', 'ai')),
-          text TEXT NOT NULL,
-          timestamp TIMESTAMP DEFAULT NOW()
-        )
-      `;
-
-      const createIndex = `
-        CREATE INDEX IF NOT EXISTS idx_messages_conversation_id 
-        ON messages(conversation_id)
-      `;
-
-      await pool.query(createConversationsTable);
-      await pool.query(createMessagesTable);
-      await pool.query(createIndex);
-      
-      console.log('✅ Database tables initialized successfully');
-    } catch (error) {
-      console.error('❌ Failed to initialize database:', error);
-      throw error;
     }
   }
 }

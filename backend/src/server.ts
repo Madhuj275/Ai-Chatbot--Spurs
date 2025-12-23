@@ -30,7 +30,8 @@ app.use(errorHandler);
 async function startServer() {
   try {
     const databaseService = new DatabaseService();
-    await databaseService.initializeDatabase();
+    // Test database connection by creating a test conversation
+    await databaseService.createConversation();
     console.log('Database initialized successfully');
 
     app.listen(PORT, () => {
